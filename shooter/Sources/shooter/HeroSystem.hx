@@ -1,5 +1,6 @@
 package shooter;
 
+import pongo.ecs.group.ReactiveGroup;
 import pongo.ecs.System;
 import pongo.ecs.group.SourceGroup;
 import pongo.ecs.group.Group;
@@ -11,7 +12,7 @@ using pongo.math.CMath;
 
 class HeroSystem implements System
 {
-    public function new(pongo :Pongo, heroes :SourceGroup, closeEnemies :Group) : Void
+    public function new(pongo :Pongo, heroes :SourceGroup) : Void
     {
         _heroes = heroes;
         _isDown = false;
@@ -43,15 +44,15 @@ class HeroSystem implements System
     public function update(pongo :Pongo, dt :Float) : Void
     {
         _heroes.iterate(function(entity :Entity) {
-            var veloY = _isDown ? 900 : _isUp ? -900 : 0;
-            var veloX = _isRight ? 900 : _isLeft ? -900 : 0;
-
             var body :Body = entity.getComponent(Body);
-            var nX = body.x + veloX * dt;
-            var nY = body.y + veloY * dt;
+            body.veloX = _isRight ? 900 : _isLeft ? -900 : 0;
+            body.veloY = _isDown ? 900 : _isUp ? -900 : 0;
+
+            var nX = body.x + body.veloX * dt;
+            var nY = CMath.clamp(body.y + body.veloY * dt, 0, pongo.height);
+            body.rotation = CMath.angle(body.x, body.y, nX, nY).toDegrees();
             body.x = nX;
             body.y = nY;
-            body.rotation = CMath.angle(body.x, body.y, nX, nY).toDegrees();
 
             if(entity.visual != null) {
                 entity.visual.x = body.x;

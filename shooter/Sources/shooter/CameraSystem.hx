@@ -15,11 +15,15 @@ class CameraSystem implements System
 
     public function update(pongo :Pongo, dt :Float) : Void
     {
+        if(_cameras.first() == null) return;
+        var camera = _cameras.first().getComponent(Camera);
+
         _heroes.changed.iterate(function(hero :Entity) {
-            if(_cameras.first() != null) {
-                var heroBody :Body = hero.getComponent(Body);
-                _cameras.first().visual.x = -heroBody.x + pongo.width/2;
-                _cameras.first().visual.y =  -heroBody.y + pongo.height/2 + 100;
+            var heroBody :Body = hero.getComponent(Body);
+            camera.x = -heroBody.x + pongo.width/2;
+
+            if(_cameras.first().visual != null) {
+                _cameras.first().visual.x = camera.x;
             }
         });
     }
