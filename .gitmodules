@@ -1,0 +1,6 @@
+[submodule "shooter/Kha"]
+	path = shooter/Kha
+	url = https://github.com/Kode/Kha
+[submodule "shooter/Libraries/Pongo"]
+	path = shooter/Libraries/Pongo
+	url = https://github.com/PongoEngine/Pongo
