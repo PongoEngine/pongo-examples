@@ -1,29 +1,26 @@
-package shooter;
+package breakers;
 
 import pongo.ecs.group.ReactiveGroup;
 import pongo.ecs.System;
 import pongo.ecs.group.SourceGroup;
 import pongo.ecs.group.Group;
 import pongo.Pongo;
+import breakers.Body;
 
 import pongo.ecs.Entity;
 import kha.input.KeyCode;
 using pongo.math.CMath;
 
-class HeroSystem implements System
+class PaddleSystem implements System
 {
-    public function new(pongo :Pongo, heroes :SourceGroup) : Void
+    public function new(pongo :Pongo, paddles :SourceGroup) : Void
     {
-        _heroes = heroes;
-        _isDown = false;
-        _isUp = false;
+        _paddles = paddles;
         _isLeft = false;
         _isRight = false;
 
         pongo.keyboard.down.connect(function(key :KeyCode) {
             switch key {
-                case KeyCode.Up: _isDown = false; _isUp = true;
-                case KeyCode.Down: _isDown = true; _isUp = false;
                 case KeyCode.Left: _isLeft = true; _isRight = false;
                 case KeyCode.Right: _isLeft = false; _isRight = true;
                 case _:
@@ -32,8 +29,6 @@ class HeroSystem implements System
 
         pongo.keyboard.up.connect(function(key :KeyCode) {
             switch key {
-                case KeyCode.Up: _isUp = false;
-                case KeyCode.Down: _isDown = false;
                 case KeyCode.Left: _isLeft = false;
                 case KeyCode.Right: _isRight = false;
                 case _:
@@ -43,28 +38,25 @@ class HeroSystem implements System
 
     public function update(pongo :Pongo, dt :Float) : Void
     {
-        _heroes.iterate(function(entity :Entity) {
+        _paddles.iterate(function(entity :Entity) {
             var body :Body = entity.getComponent(Body);
-            body.veloX = _isRight ? 900 : _isLeft ? -900 : 0;
-            body.veloY = _isDown ? 900 : _isUp ? -900 : 0;
-
-            var nX = body.x + body.veloX * dt;
-            var nY = CMath.clamp(body.y + body.veloY * dt, 0, pongo.height);
-            body.rotation = CMath.angle(body.x, body.y, nX, nY).toDegrees();
-            body.x = nX;
-            body.y = nY;
+            var velocity = _isRight ? 900 : _isLeft ? -900 : 0;
+            body.x = switch body.shape {
+                case RECT(width, height):
+                    CMath.clamp(body.x + velocity * dt, width/2, pongo.width-width/2);
+                case CIRCLE(radius):
+                    CMath.clamp(body.x + velocity * dt, radius, pongo.width-radius);
+            }
+            body.y = body.y;
 
             if(entity.visual != null) {
                 entity.visual.x = body.x;
                 entity.visual.y = body.y;
-                entity.visual.rotation = body.rotation;
             }
         });
     }
 
-    private var _heroes :SourceGroup;
-    private var _isDown :Bool;
-    private var _isUp :Bool;
+    private var _paddles :SourceGroup;
     private var _isLeft :Bool;
     private var _isRight :Bool;
 }

@@ -1,24 +1,25 @@
 package;
 
+import pongo.math.CMath;
+import pongo.display.CircleSprite;
 import pongo.ecs.group.ReactiveGroup;
 import pongo.ecs.group.SourceGroup;
 import kha.System;
 
-import pongo.display.Sprite;
-import pongo.display.CircleSprite;
+import pongo.display.FillSprite;
 import pongo.Pongo;
 import pongo.ecs.Entity;
-import shooter.Body;
-import shooter.Hero;
-import shooter.HeroSystem;
-import shooter.Enemy;
-import shooter.EnemySystem;
-import shooter.Camera;
-import shooter.CameraSystem;
+import breakers.Body;
+import breakers.Paddle;
+import breakers.PaddleSystem;
+import breakers.Ball;
+import breakers.BallSystem;
+import breakers.DebugSprite;
+import breakers.CollisionSystem;
 
-import pongo.math.CMath;
-
-class Main {
+class Main 
+{
+    
     public static function main() : Void
     {
         System.start({title: "Empty", width: 800, height: 600}, onStart);
@@ -27,60 +28,49 @@ class Main {
     private static function onStart(window) : Void
     {
         var pongo :Pongo = new pongo.platform.Pongo();
-        var heroes = pongo.manager.registerGroup([Body, Hero]);
-        var enemies = pongo.manager.registerGroup([Body, Enemy]);
-        var cameras = pongo.manager.registerGroup([Camera]);
-
-        var closeEnemies = distanceEnemiesGroup(enemies, heroes, true);
-        var farEnemies = distanceEnemiesGroup(enemies, heroes, false);
-        var bulletLayer = pongo.createEntity();
-        var enemySystem = new EnemySystem(enemies, closeEnemies, farEnemies);
+        var paddles = pongo.manager.registerGroup([Body, Paddle]);
+        var balls = pongo.manager.registerGroup([Body, Ball]);
+        var bodies = pongo.manager.registerGroup([Body]);
 
         pongo
-            .addSystem(new CameraSystem(pongo, cameras, heroes))
-            .addSystem(new HeroSystem(pongo, heroes))
-            .addSystem(enemySystem)
+            .addSystem(new PaddleSystem(pongo, paddles))
+            .addSystem(new BallSystem(balls, paddles))
+            .addSystem(new CollisionSystem(bodies))
             .root
-                .setVisual(new Sprite())
-                .addComponent(new Camera(0))
-                .addEntity(createHero(pongo, pongo.width/2, pongo.height/2, 30))
-                .addEntity(createEnemy(pongo, 0xff00aabb, 600, 30, 730))
-                .addEntity(createEnemy(pongo, 0xff00aabb, 800, 30, 390))
-                .addEntity(createEnemy(pongo, 0xff00aabb, 1200, 30, 820))
-                .addEntity(bulletLayer)
-                .addEntity(pongo.createEntity()
-                    .setVisual(enemySystem));
+                .addEntity(createBall(pongo, 100, 800, pongo.width/2, 420, 15))
+                .addEntity(createPaddle(pongo, pongo.width/2, 550, 100, 20))
+                .addEntity(createWalls(pongo))
+                .addEntity(pongo.createEntity().setVisual(new DebugSprite(bodies)));
     }
 
-    private static function distanceEnemiesGroup(enemies :SourceGroup, heroes :SourceGroup, isClose :Bool) : ReactiveGroup
-    {
-        return enemies.createReactiveGroup(function(e) {
-            var firstHero = heroes.first();
-            if(firstHero == null) return false;
-            else {
-                var heroBody = firstHero.getComponent(Body);
-                var enemyBody = e.getComponent(Body);
-                var dist = CMath.distance(enemyBody.x, enemyBody.y, heroBody.x, heroBody.y);
-                return isClose ? dist < 200 : dist >= 200;
-            }
-        });
-    }
-
-    public static function createHero(pongo :Pongo, x :Float, y :Float, radius :Float) : Entity
+    public static function createPaddle(pongo :Pongo, x :Float, y :Float, width :Float, height :Float) : Entity
     {
         return pongo.createEntity()
-            .addComponent(new Hero(100))
-            .setVisual(new CircleSprite(0xff00ff00, radius)
+            .addComponent(new Paddle())
+            .setVisual(new FillSprite(0xff00ff00, width, height)
                 .centerAnchor())
-            .addComponent(new Body(x, y, 0, 0, radius, 0));
+            .addComponent(new Body(x, y, RECT(width, height), NONE, Rect.create(), true));
     }
 
-    public static function createEnemy(pongo :Pongo, color :Int, x :Float, radius :Float, speed :Float) : Entity
+    public static function createBall(pongo :Pongo, velocityX :Float, velocityY :Float, x :Float, y :Float, radius :Float) : Entity
     {
         return pongo.createEntity()
-            .addComponent(new Enemy(color, 10, 1, speed))
-            .setVisual(new CircleSprite(color, radius)
+            .addComponent(new Ball(velocityX, velocityY))
+            .setVisual(new CircleSprite(0xff00ffff, radius)
                 .centerAnchor())
-            .addComponent(new Body(x, 0, 0, 0, radius, 0));
+            .addComponent(new Body(x, y, CIRCLE(radius), NONE, Rect.create(), false));
+    }
+
+    public static function createWalls(pongo :Pongo) : Entity
+    {
+        return pongo.createEntity()
+            .addEntity(pongo.createEntity()
+                .addComponent(new Body(5,pongo.height/2,RECT(10,pongo.height), NONE, Rect.create(), false)))
+            .addEntity(pongo.createEntity()
+                .addComponent(new Body(pongo.width-5,pongo.height/2,RECT(10,pongo.height), NONE, Rect.create(), false)))
+            .addEntity(pongo.createEntity()
+                .addComponent(new Body(pongo.width/2,5,RECT(pongo.width,10), NONE, Rect.create(), false)))
+            .addEntity(pongo.createEntity()
+                .addComponent(new Body(pongo.width/2,pongo.height-5,RECT(pongo.width,10), NONE, Rect.create(), false)));
     }
 }
