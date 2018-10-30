@@ -40,7 +40,6 @@ class Rect
     public var oldRight (default, null):Float;
     public var oldTop (default, null):Float;
     public var oldBottom (default, null):Float;
-    public var canUpdate :Bool;
 
     public function new(left :Float, right :Float, top :Float, bottom :Float) : Void
     {
@@ -48,23 +47,19 @@ class Rect
         this.oldRight = this.right = right;
         this.oldTop = this.top = top;
         this.oldBottom = this.bottom = bottom;
-        this.canUpdate = true;
     }
 
     public function setVals(left :Float, right :Float, top :Float, bottom :Float) : Void
     {
-        if(this.canUpdate) {
-            this.oldLeft = this.left;
-            this.oldRight = this.right;
-            this.oldTop = this.top;
-            this.oldBottom = this.bottom;
+        this.oldLeft = this.left;
+        this.oldRight = this.right;
+        this.oldTop = this.top;
+        this.oldBottom = this.bottom;
 
-            this.left = left;
-            this.right = right;
-            this.top = top;
-            this.bottom = bottom;
-            this.canUpdate = false;
-        }
+        this.left = left;
+        this.right = right;
+        this.top = top;
+        this.bottom = bottom;
     }
 
     public function collidedFromLeft(otherRect :Rect) : Bool

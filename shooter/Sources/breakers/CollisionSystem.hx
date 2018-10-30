@@ -19,15 +19,13 @@ class CollisionSystem implements System
     {
         _bodies.iterate(function(e :Entity) {
             e.getComponent(Body).collisionDirection = NONE;
-            e.getComponent(Body).rect.canUpdate = true;
+            updateRect(e.getComponent(Body));
         });
 
         _bodies.changed.iterate(function(from :Entity) {
             var fromBody = from.getComponent(Body);
-            updateRect(fromBody);
             _bodies.iterateWithEscape(function(to :Entity) {
                 var toBody = to.getComponent(Body);
-                updateRect(toBody);
                 checkCollision(fromBody, toBody);
                 return fromBody.collisionDirection != NONE;
             });
