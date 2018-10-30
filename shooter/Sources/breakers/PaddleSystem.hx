@@ -40,7 +40,7 @@ class PaddleSystem implements System
     {
         _paddles.iterate(function(entity :Entity) {
             var body :Body = entity.getComponent(Body);
-            var velocity = _isRight ? 900 : _isLeft ? -900 : 0;
+            var velocity = _isRight ? 600 : _isLeft ? -600 : 0;
             body.x = switch body.shape {
                 case RECT(width, height):
                     CMath.clamp(body.x + velocity * dt, width/2, pongo.width-width/2);

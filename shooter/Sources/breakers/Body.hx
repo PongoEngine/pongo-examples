@@ -8,6 +8,7 @@ class Body implements Component
     var y :Float;
     var shape :BodyShape;
     var collisionDirection :Direction;
+    var collidedWith :Body;
     var rect :Rect;
     var isPaddle :Bool;
 }

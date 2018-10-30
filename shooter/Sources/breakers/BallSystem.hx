@@ -24,9 +24,15 @@ class BallSystem implements System
 
             if(body.collisionDirection != NONE) {
                 switch body.collisionDirection {
-                    case LEFT, RIGHT: 
+                    case LEFT, RIGHT:
                         ball.velocityX *= -1;
-                    case TOP, BOTTOM: 
+                    case TOP, BOTTOM:
+                        if(body.collidedWith.isPaddle) {
+                            var a = body.x - body.collidedWith.rect.left;
+                            var b = body.collidedWith.rect.right - body.collidedWith.rect.left;
+                            var percent = ((a / b) - 0.5) * 2;
+                            ball.velocityX = 400 * percent;
+                        }
                         ball.velocityY *= -1;
                     case NONE:
                 }

@@ -18,7 +18,6 @@ class DebugSprite extends Sprite
     override public function draw(pongo :Pongo, g :Graphics) : Void
     {
         _bodies.iterate(function(e) {
-        // _bodies.changed.iterate(function(e) {
             var body = e.getComponent(Body);
             switch body.shape {
                 case RECT(width, height):

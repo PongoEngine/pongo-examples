@@ -37,7 +37,7 @@ class Main
             .addSystem(new BallSystem(balls, paddles))
             .addSystem(new CollisionSystem(bodies))
             .root
-                .addEntity(createBall(pongo, 100, 800, pongo.width/2, 420, 15))
+                .addEntity(createBall(pongo, 0, 400, pongo.width/2, 420, 15))
                 .addEntity(createPaddle(pongo, pongo.width/2, 550, 100, 20))
                 .addEntity(createWalls(pongo))
                 .addEntity(pongo.createEntity().setVisual(new DebugSprite(bodies)));
@@ -49,7 +49,7 @@ class Main
             .addComponent(new Paddle())
             .setVisual(new FillSprite(0xff00ff00, width, height)
                 .centerAnchor())
-            .addComponent(new Body(x, y, RECT(width, height), NONE, Rect.create(), true));
+            .addComponent(new Body(x, y, RECT(width, height), NONE, null, Rect.create(), true));
     }
 
     public static function createBall(pongo :Pongo, velocityX :Float, velocityY :Float, x :Float, y :Float, radius :Float) : Entity
@@ -58,19 +58,17 @@ class Main
             .addComponent(new Ball(velocityX, velocityY))
             .setVisual(new CircleSprite(0xff00ffff, radius)
                 .centerAnchor())
-            .addComponent(new Body(x, y, CIRCLE(radius), NONE, Rect.create(), false));
+            .addComponent(new Body(x, y, CIRCLE(radius), NONE, null, Rect.create(), false));
     }
 
     public static function createWalls(pongo :Pongo) : Entity
     {
         return pongo.createEntity()
             .addEntity(pongo.createEntity()
-                .addComponent(new Body(5,pongo.height/2,RECT(10,pongo.height), NONE, Rect.create(), false)))
+                .addComponent(new Body(-5,pongo.height/2,RECT(10,pongo.height), NONE, null, Rect.create(), false)))
             .addEntity(pongo.createEntity()
-                .addComponent(new Body(pongo.width-5,pongo.height/2,RECT(10,pongo.height), NONE, Rect.create(), false)))
+                .addComponent(new Body(pongo.width + 5,pongo.height/2,RECT(10,pongo.height), NONE, null, Rect.create(), false)))
             .addEntity(pongo.createEntity()
-                .addComponent(new Body(pongo.width/2,5,RECT(pongo.width,10), NONE, Rect.create(), false)))
-            .addEntity(pongo.createEntity()
-                .addComponent(new Body(pongo.width/2,pongo.height-5,RECT(pongo.width,10), NONE, Rect.create(), false)));
+                .addComponent(new Body(pongo.width/2,-5,RECT(pongo.width,10), NONE, null, Rect.create(), false)));
     }
 }

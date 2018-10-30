@@ -44,6 +44,10 @@ class CollisionSystem implements System
             case[RECT(width1, height1), RECT(width2, height2)]: rectToRect(from, to);
             case[CIRCLE(radius1), CIRCLE(radius2)]: circleToCircle(from, radius1, to, radius2);
         }
+
+        from.collidedWith = (from.collisionDirection != NONE)
+            ? from.collidedWith = to
+            : null;
     }
 
     private function circleToRect(from :Body, radius :Float, to :Body) : Void
@@ -98,12 +102,6 @@ class CollisionSystem implements System
         if(from.rect.collidedFromBottom(to.rect)) from.collisionDirection = TOP;
         if(from.rect.collidedFromTop(to.rect)) from.collisionDirection = BOTTOM;
     }
-
-    
-
-
-
-
 
     private var _bodies :SourceGroup;
 }
