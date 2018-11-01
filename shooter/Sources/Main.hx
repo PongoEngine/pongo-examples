@@ -1,9 +1,6 @@
 package;
 
-import pongo.math.CMath;
 import pongo.display.CircleSprite;
-import pongo.ecs.group.ReactiveGroup;
-import pongo.ecs.group.SourceGroup;
 import kha.System;
 
 import pongo.display.FillSprite;
@@ -12,6 +9,9 @@ import pongo.ecs.Entity;
 import breakers.Body;
 import breakers.Paddle;
 import breakers.PaddleSystem;
+import breakers.Alive;
+import breakers.Dead;
+import breakers.DeadBallSystem;
 import breakers.Ball;
 import breakers.BallSystem;
 import breakers.DebugSprite;
@@ -29,15 +29,17 @@ class Main
     {
         var pongo :Pongo = new pongo.platform.Pongo();
         var paddles = pongo.manager.registerGroup([Body, Paddle]);
-        var balls = pongo.manager.registerGroup([Body, Ball]);
+        var balls = pongo.manager.registerGroup([Body, Ball, Alive]);
+        var deadBalls = pongo.manager.registerGroup([Body, Ball, Dead]);
         var bodies = pongo.manager.registerGroup([Body]);
 
         pongo
             .addSystem(new PaddleSystem(pongo, paddles))
-            .addSystem(new BallSystem(balls, paddles))
+            .addSystem(new BallSystem(balls))
+            .addSystem(new DeadBallSystem(deadBalls))
             .addSystem(new CollisionSystem(bodies))
             .root
-                .addEntity(createBall(pongo, 0, 400, pongo.width/2, 420, 15))
+                .addEntity(createBall(pongo, 0, 100, pongo.width/2, 320, 15))
                 .addEntity(createPaddle(pongo, pongo.width/2, 550, 100, 20))
                 .addEntity(createWalls(pongo))
                 .addEntity(pongo.createEntity().setVisual(new DebugSprite(bodies)));
@@ -55,6 +57,7 @@ class Main
     public static function createBall(pongo :Pongo, velocityX :Float, velocityY :Float, x :Float, y :Float, radius :Float) : Entity
     {
         return pongo.createEntity()
+            .addComponent(new Alive())
             .addComponent(new Ball(velocityX, velocityY))
             .setVisual(new CircleSprite(0xff00ffff, radius)
                 .centerAnchor())
